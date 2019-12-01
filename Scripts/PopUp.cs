@@ -27,8 +27,10 @@ namespace ExtraTools
         }
     }
 
-    public class PopUp : MonoBehaviour
+    public class PopUp : Singleton<PopUp>
     {
+        [SerializeField]
+        private Canvas canvas;
         [SerializeField]
         private Text messageLabel;
         [SerializeField]
@@ -67,11 +69,14 @@ namespace ExtraTools
         public void Register(Message msg)
         {
             messages.Enqueue(msg);
-            if (!gameObject.activeSelf)
+            if (!canvas.enabled)
             {
-                gameObject.SetActive(true);
+                canvas.enabled = true;
                 CheckMessages();
             }
+            else
+                UpdateMessageCount();
+
         }
 
         /// <summary>
@@ -154,6 +159,12 @@ namespace ExtraTools
             }
         }
 
+        private void UpdateMessageCount()
+        {
+            //Set message label text
+            messageLabel.text = string.Format("Got {0} message{1}", (messages.Count + 1).ToString(), messages.Count == 0 ? string.Empty : "s");
+        }
+
         /// <summary>
         /// Check if any messages remains in the queue
         /// </summary>
@@ -161,12 +172,11 @@ namespace ExtraTools
         {
             if (messages.Count > 0)
             {
-                //Set message label text
-                messageLabel.text = string.Format("Got {0} message{1}", (messages.Count + 1).ToString(), messages.Count == 0 ? string.Empty : "s");
                 SetMessage(messages.Dequeue());
+                UpdateMessageCount();
             }
             else
-                gameObject.SetActive(false);
+                canvas.enabled = false;
         }
     }
 }
