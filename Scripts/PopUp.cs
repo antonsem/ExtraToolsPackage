@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using TMPro;
 
 namespace ExtraTools
 {
@@ -10,20 +11,27 @@ namespace ExtraTools
     {
         public Sprite img;
         public string message;
-        public UnityAction yes;
-        public UnityAction no;
-        public UnityAction ok;
-        public UnityAction cancel;
+
+        public MessageButton[] buttons;
 
         public Message() { }
-        public Message(string msg, UnityAction _ok, UnityAction _yes, UnityAction _no, UnityAction _cancel, Sprite _img)
+        public Message(in string _message, in Sprite _img, params MessageButton[] _buttons)
         {
-            message = msg;
-            ok = _ok;
-            yes = _yes;
-            no = _no;
-            cancel = _cancel;
             img = _img;
+            message = _message;
+            buttons = _buttons;
+        }
+    }
+
+    public class MessageButton
+    {
+        public string buttonText;
+        public UnityAction buttonAction;
+
+        public MessageButton(string _buttonText, UnityAction _buttonAction)
+        {
+            buttonText = _buttonText;
+            buttonAction = _buttonAction;
         }
     }
 
@@ -32,19 +40,17 @@ namespace ExtraTools
         [SerializeField]
         private Canvas canvas;
         [SerializeField]
-        private Text messageLabel;
+        private TextMeshProUGUI messageLabel;
         [SerializeField]
         private Image messageImage;
         [SerializeField]
-        private Text message;
+        private TextMeshProUGUI message;
         [SerializeField]
-        private Button yes;
+        private GameObject buttonPrefab;
         [SerializeField]
-        private Button no;
-        [SerializeField]
-        private Button ok;
-        [SerializeField]
-        private Button cancel;
+        private Transform buttonsContent;
+
+        private List<Button> buttons = new List<Button>();
 
         private Queue<Message> messages = new Queue<Message>();
 
@@ -57,9 +63,9 @@ namespace ExtraTools
         /// <param name="noAction">A method to invoke when 'no' button is pressed</param>
         /// <param name="cancelAction">A method to invoke when 'cancel' button is pressed</param>
         /// <param name="img">A sprite to show alongside the question</param>
-        public void Register(string msg, UnityAction okAction = null, UnityAction yesAction = null, UnityAction noAction = null, UnityAction cancelAction = null, Sprite img = null)
+        public void Register(in string msg, in Sprite img = null, params MessageButton[] buttons)
         {
-            Register(new Message(msg, okAction, yesAction, noAction, cancelAction, img));
+            Register(new Message(msg, img, buttons));
         }
 
         /// <summary>
@@ -99,69 +105,72 @@ namespace ExtraTools
             //Set the message text
             message.text = msg.message;
 
-            //Remove listeners from the buttons
-            yes.onClick.RemoveAllListeners();
-            no.onClick.RemoveAllListeners();
-            ok.onClick.RemoveAllListeners();
-            cancel.onClick.RemoveAllListeners();
-
-            //Set the buttons
-            if (msg.yes != null)
+            //Set buttons
+            if (msg.buttons == null || msg.buttons.Length == 0)
             {
-                yes.gameObject.SetActive(true);
-                yes.onClick.AddListener(msg.yes);
-                yes.onClick.AddListener(CheckMessages);
+                Button btn = GetButton();
+                btn.GetComponentInChildren<TextMeshProUGUI>().text = "OK";
+                btn.onClick.AddListener(ClearButtons);
+                btn.onClick.AddListener(CheckMessages);
+                btn.Select();
             }
             else
             {
-                yes.gameObject.SetActive(false);
-            }
+                Button temp = null;
+                Button selectThis = null;
+                foreach (MessageButton btn in msg.buttons)
+                {
+                    temp = GetButton();
+                    if (selectThis == null)
+                        selectThis = temp;
+                    if (btn.buttonAction != null)
+                        temp.onClick.AddListener(btn.buttonAction);
+                    temp.onClick.AddListener(ClearButtons);
+                    temp.onClick.AddListener(CheckMessages);
+                    temp.GetComponentInChildren<TextMeshProUGUI>().text = btn.buttonText;
+                }
 
-            if (msg.no != null)
-            {
-                no.gameObject.SetActive(true);
-                no.onClick.AddListener(msg.no);
-                no.onClick.AddListener(CheckMessages);
-            }
-            else
-            {
-                no.gameObject.SetActive(false);
-            }
-
-            if (msg.cancel != null)
-            {
-                cancel.gameObject.SetActive(true);
-                cancel.onClick.AddListener(msg.cancel);
-                cancel.onClick.AddListener(CheckMessages);
-            }
-            else
-            {
-                cancel.gameObject.SetActive(false);
-            }
-
-            //If other buttons are disabled, we probably want the OK button to be enabled
-            if (!cancel.gameObject.activeSelf && !no.gameObject.activeSelf && !yes.gameObject.activeSelf)
-            {
-                ok.gameObject.SetActive(true);
-                ok.onClick.AddListener(CheckMessages);
-                if (msg.ok != null)
-                    ok.onClick.AddListener(msg.ok);
-            }
-            else if (msg.ok != null)
-            {
-                ok.gameObject.SetActive(true);
-                ok.onClick.AddListener(msg.ok);
-                ok.onClick.AddListener(CheckMessages);
-            }
-            else
-            {
-                ok.gameObject.SetActive(false);
+                selectThis.Select();
             }
         }
 
+        /// <summary>
+        /// Disabled all buttons and remove all listeners from each button
+        /// </summary>
+        private void ClearButtons()
+        {
+            foreach (Button btn in buttons)
+            {
+                btn.onClick.RemoveAllListeners();
+                btn.gameObject.SetActive(false);
+            }
+        }
+
+        /// <summary>
+        /// Checks the buttons in the pool and returns the first disabled one
+        /// Instantiates a new one if no buttons are availeble in the pool
+        /// </summary>
+        /// <returns></returns>
+        private Button GetButton()
+        {
+            foreach (Button go in buttons)
+            {
+                if (!go.gameObject.activeSelf)
+                {
+                    go.gameObject.SetActive(true);
+                    return go;
+                }
+            }
+
+            buttons.Add(Instantiate(buttonPrefab, buttonsContent).GetComponent<Button>());
+            return buttons[buttons.Count - 1];
+        }
+
+        /// <summary>
+        /// Updates the message count label
+        /// </summary>
         private void UpdateMessageCount()
         {
-            //Set message label text
             messageLabel.text = string.Format("Got {0} message{1}", (messages.Count + 1).ToString(), messages.Count == 0 ? string.Empty : "s");
         }
 
