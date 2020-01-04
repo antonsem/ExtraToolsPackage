@@ -52,6 +52,14 @@ namespace ExtraTools
 
         private List<Button> buttons = new List<Button>();
 
+        public bool isUp
+        {
+            get
+            {
+                return canvas.enabled;
+            }
+        }
+
         private Queue<Message> messages = new Queue<Message>();
 
         /// <summary>
