@@ -34,6 +34,11 @@ namespace ExtraTools
             return component;
         }
 
+        public static bool IsValid(this string str)
+        {
+            return !string.IsNullOrEmpty(str);
+        }
+
 #if UNITY_EDITOR
 
         /// <summary>
@@ -73,6 +78,13 @@ namespace ExtraTools
         public static void ShowExplorer()
         {
             string path = Directory.GetParent(Application.dataPath).FullName;
+            EditorUtility.RevealInFinder(path);
+        }
+        
+        [MenuItem("Extra Tools/Open Persistant Data Folder %t")] // CTRL + T
+        public static void ShowPersistantData()
+        {
+            string path = Directory.GetParent(Application.persistentDataPath).FullName;
             EditorUtility.RevealInFinder(path);
         }
 
