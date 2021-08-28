@@ -1,9 +1,8 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace ExtraTools
+namespace ExtraTools.Editor
 {
-#if UNITY_EDITOR
     [CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
     public class ReadOnlyDrawer : PropertyDrawer
     {
@@ -18,5 +17,4 @@ namespace ExtraTools
             EditorGUI.LabelField(position, string.Format("{0}: {1}", label.text, val));
         }
     }
-#endif
 }

@@ -1,13 +1,12 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace ExtraTools
+namespace ExtraTools.Editor
 {
     /// <summary>
     /// Credit for this tip goes to Rodrigo Devora
     /// Got it from the twitter: https://twitter.com/Rodrigo_Devora/status/1204031607583264769
     /// </summary>
-#if UNITY_EDITOR
     [CustomPropertyDrawer(typeof(RequiredField))]
     public class RequiredFieldDrawer : PropertyDrawer
     {
@@ -30,5 +29,4 @@ namespace ExtraTools
                 EditorGUI.PropertyField(position, property, label);
         }
     }
-#endif
 }
