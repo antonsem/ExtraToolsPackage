@@ -4,7 +4,9 @@ using System.IO;
 using System.Reflection;
 using UnityEditor;
 #endif
+using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 //I will be adding some useful stuff I use in my projects.
 namespace ExtraTools
@@ -34,9 +36,26 @@ namespace ExtraTools
             return component;
         }
 
+        /// <summary>
+        /// Checks if the string is null or empty
+        /// </summary>
+        /// <returns>True if the string is not null or empty</returns>
         public static bool IsValid(this string str)
         {
             return !string.IsNullOrEmpty(str);
+        }
+
+        /// <summary>
+        /// Gets a random item from a list or an array
+        /// </summary>
+        /// <returns>Random item if any items exist. Default value of the type otherwise.</returns>
+        public static T GetRandom<T>(this IReadOnlyList<T> list)
+        {
+            if (list != null && list.Count != 0)
+                return list[Random.Range(0, list.Count)];
+            
+            Debug.LogError("List doesn't have any items. Returning default");
+            return default;
         }
         
         #region Material Property Block
