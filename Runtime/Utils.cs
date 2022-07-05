@@ -46,6 +46,18 @@ namespace ExtraTools
         }
 
         /// <summary>
+        /// A shortcut for string.Format(string, params object[])
+        /// </summary>
+        /// <param name="str">String to format</param>
+        /// <param name="parameters">Parameters to insert into the string</param>
+        /// <returns>string.Format(str, parameters)</returns>
+        public static string Format(this string str, params object[] parameters)
+        {
+            return string.Format(str, parameters);
+        }
+
+
+        /// <summary>
         /// Gets a random item from a list or an array
         /// </summary>
         /// <returns>Random item if any items exist. Default value of the type otherwise.</returns>
