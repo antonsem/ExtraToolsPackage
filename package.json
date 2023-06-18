@@ -1,10 +1,10 @@
 {
   "name": "com.antonsem.extratools",
   "displayName": "Extra Tools",
-  "version": "1.6.0",
-  "unity": "2021.3",
+  "version": "1.6.1",
+  "unity": "2022.3",
   "description": "A package with some shortcuts and code snippets that I find useful. \n\nTo find out more, click the \"View Documentation\" link.",
   "keywords": [],
   "category": "Utilities",
-  "type": "library"
+  "type": "module"
 }
